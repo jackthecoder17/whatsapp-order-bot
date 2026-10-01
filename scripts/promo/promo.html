@@ -1,0 +1,373 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=540, initial-scale=1">
+<title>Promo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&display=block" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; }
+  html, body { width: 540px; height: 960px; overflow: hidden; }
+  body {
+    font-family: 'Plus Jakarta Sans', -apple-system, 'Segoe UI', sans-serif; color: #fff;
+    background: radial-gradient(120% 80% at 50% 0%, #0f5c50 0%, #083b34 45%, #04201c 100%);
+    position: relative;
+  }
+  .abs { position: absolute; will-change: transform, opacity; }
+  .blob { width: 420px; height: 420px; border-radius: 50%; filter: blur(70px); opacity: .45; }
+  #blob1 { background: #25d366; left: -160px; top: -120px; }
+  #blob2 { background: #128c7e; right: -180px; bottom: -140px; left: auto; }
+  .center { left: 0; right: 0; text-align: center; }
+  .hl { color: #25d366; }
+
+  /* Scene 1 — the problem */
+  #hook { top: 70px; font-size: 36px; font-weight: 800; line-height: 1.15; letter-spacing: -.02em; padding: 0 36px; }
+  #unread { top: 190px; left: 50%; margin-left: -78px; width: 156px; background: #ff3b30; border-radius: 22px; padding: 8px 0; text-align: center; font-weight: 800; font-size: 20px; box-shadow: 0 8px 24px rgba(255,59,48,.4); }
+  .notif { left: 40px; width: 460px; background: rgba(245,245,247,.96); color: #111; border-radius: 20px; padding: 12px 14px; display: flex; gap: 12px; align-items: center; box-shadow: 0 14px 30px rgba(0,0,0,.35); }
+  .notif .ic { width: 38px; height: 38px; border-radius: 10px; background: #25d366; display: grid; place-items: center; font-size: 20px; flex: none; }
+  .notif .tx { flex: 1; min-width: 0; }
+  .notif .top { display: flex; justify-content: space-between; font-size: 12px; color: #6b6b70; font-weight: 600; }
+  .notif b { display: block; font-size: 15px; }
+  .notif span.m { display: block; font-size: 14px; color: #333; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+  /* Scene 2 — intro */
+  #intro1 { top: 330px; font-size: 26px; font-weight: 600; opacity: .85; }
+  #intro2 { top: 372px; font-size: 48px; font-weight: 800; line-height: 1.05; letter-spacing: -.03em; }
+
+  /* Captions */
+  .cap { top: 72px; left: 30px; right: 30px; text-align: center; font-size: 27px; font-weight: 800; line-height: 1.2; letter-spacing: -.01em; text-shadow: 0 4px 18px rgba(0,0,0,.35); }
+  .cap small { display: block; font-size: 16px; font-weight: 600; opacity: .8; margin-top: 6px; letter-spacing: 0; }
+
+  /* Phone */
+  #phone { left: 120px; top: 240px; width: 300px; height: 610px; background: #0b0b0c; border-radius: 46px; padding: 10px; box-shadow: 0 30px 60px rgba(0,0,0,.5), inset 0 0 0 2px #2a2a2c; }
+  .screen { width: 100%; height: 100%; border-radius: 36px; overflow: hidden; display: flex; flex-direction: column; background: #efeae2; position: relative; }
+  .sbar { height: 28px; background: #075e54; color: #fff; font-size: 11px; font-weight: 700; display: flex; justify-content: space-between; align-items: center; padding: 4px 22px 0; }
+  .wahead { height: 52px; background: #075e54; display: flex; align-items: center; gap: 9px; padding: 0 12px; }
+  .wahead .av { width: 34px; height: 34px; border-radius: 50%; background: #f4a261; display: grid; place-items: center; font-size: 18px; }
+  .wahead b { font-size: 14px; display: block; }
+  .wahead small { font-size: 11px; opacity: .85; }
+  #chat { flex: 1; position: relative; overflow: hidden; background-color: #efeae2; background-image: radial-gradient(rgba(0,0,0,.05) 1px, transparent 1.2px); background-size: 13px 13px; }
+  #chatInner { position: absolute; left: 0; right: 0; top: 0; padding: 10px 9px; display: flex; flex-direction: column; gap: 5px; }
+  .b { max-width: 84%; padding: 6px 9px 15px; border-radius: 9px; font-size: 12px; line-height: 1.36; color: #111; white-space: pre-wrap; position: relative; box-shadow: 0 1px 1px rgba(0,0,0,.08); }
+  .b.bot { background: #fff; align-self: flex-start; border-top-left-radius: 2px; transform-origin: 0% 100%; }
+  .b.me { background: #d9fdd3; align-self: flex-end; border-top-right-radius: 2px; transform-origin: 100% 100%; }
+  .b time { position: absolute; right: 7px; bottom: 2px; font-size: 9px; color: #8a9199; }
+  .inbar { height: 54px; background: #f0f2f5; display: flex; align-items: center; gap: 7px; padding: 0 8px; }
+  .inbar .field { flex: 1; background: #fff; border-radius: 20px; height: 36px; display: flex; align-items: center; padding: 0 13px; font-size: 13px; color: #111; }
+  .inbar .field.ph { color: #8a9199; }
+  .inbar .send { width: 36px; height: 36px; border-radius: 50%; background: #00a884; display: grid; place-items: center; font-size: 15px; color: #fff; }
+  .caret { display: inline-block; width: 1.5px; height: 15px; background: #00a884; margin-left: 1px; vertical-align: -3px; }
+
+  /* Scene 4 — owner side */
+  #banner { top: 26px; left: 30px; width: 480px; background: rgba(250,250,252,.97); color: #111; border-radius: 22px; padding: 13px 15px; display: flex; gap: 12px; align-items: center; box-shadow: 0 18px 40px rgba(0,0,0,.4); }
+  #banner .ic { width: 42px; height: 42px; border-radius: 11px; background: #25d366; display: grid; place-items: center; font-size: 22px; flex: none; }
+  #banner .top { display: flex; justify-content: space-between; font-size: 12px; color: #6b6b70; font-weight: 600; }
+  #banner b { display: block; font-size: 16px; }
+  #banner span { font-size: 14px; color: #333; }
+  #card { top: 150px; left: 40px; width: 460px; background: #fff; color: #1f2328; border-radius: 22px; padding: 18px 18px 16px; box-shadow: 0 24px 50px rgba(0,0,0,.45); }
+  #card .row { display: flex; justify-content: space-between; align-items: baseline; }
+  #card .id { font-weight: 800; font-size: 18px; }
+  #card .amt { font-weight: 800; font-size: 20px; }
+  #card .meta { color: #667085; font-size: 13px; margin: 4px 0 12px; display: flex; gap: 8px; align-items: center; }
+  .pill { font-size: 12px; font-weight: 700; padding: 3px 10px; border-radius: 10px; background: #fff4e5; color: #8a5300; }
+  .steps { display: flex; gap: 5px; margin-bottom: 4px; }
+  .steps i { flex: 1; height: 7px; border-radius: 4px; background: #eef2f6; position: relative; overflow: hidden; }
+  .steps i::after { content: ''; position: absolute; inset: 0; background: #25d366; transform-origin: 0 50%; transform: scaleX(var(--f, 0)); }
+  .slabels { display: flex; justify-content: space-between; font-size: 11px; color: #667085; margin-bottom: 14px; }
+  #card .items { font-size: 14px; margin-bottom: 14px; }
+  #btn { background: #075e54; color: #fff; text-align: center; font-weight: 800; font-size: 16px; border-radius: 12px; padding: 13px 0; position: relative; }
+  #btn.done { background: #e7f8ee; color: #0f7a3c; }
+  #tap { width: 70px; height: 70px; border-radius: 50%; background: rgba(255,255,255,.75); border: 3px solid #25d366; left: 235px; top: 412px; }
+
+  /* Scene 5 — benefits */
+  #benTitle { top: 150px; font-size: 34px; font-weight: 800; letter-spacing: -.02em; }
+  .ben { left: 48px; right: 48px; background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.14); border-radius: 20px; padding: 18px 18px; display: flex; gap: 16px; align-items: center; backdrop-filter: blur(6px); }
+  .ben .e { width: 52px; height: 52px; border-radius: 14px; background: #25d366; display: grid; place-items: center; font-size: 26px; flex: none; }
+  .ben b { font-size: 20px; display: block; line-height: 1.2; }
+  .ben small { font-size: 14px; opacity: .75; }
+
+  /* Scene 6 — CTA */
+  #ctaIcon { top: 210px; left: 50%; margin-left: -64px; width: 128px; height: 128px; border-radius: 36px; background: linear-gradient(145deg, #25d366, #128c7e); display: grid; place-items: center; font-size: 64px; box-shadow: 0 20px 50px rgba(37,211,102,.45); }
+  #ctaTitle { top: 380px; font-size: 42px; font-weight: 800; line-height: 1.08; letter-spacing: -.03em; padding: 0 30px; }
+  #ctaSub { top: 500px; font-size: 19px; font-weight: 600; opacity: .85; padding: 0 40px; line-height: 1.4; }
+  #ctaBtn { top: 600px; left: 70px; right: 70px; background: #25d366; color: #052e27; text-align: center; font-weight: 800; font-size: 24px; border-radius: 40px; padding: 20px 0; box-shadow: 0 16px 40px rgba(37,211,102,.45); }
+  #ctaFoot { top: 720px; font-size: 15px; font-weight: 600; opacity: .7; padding: 0 30px; line-height: 1.5; }
+</style>
+</head>
+<body>
+  <div class="abs blob" id="blob1"></div>
+  <div class="abs blob" id="blob2"></div>
+
+  <!-- Scene 1 -->
+  <div class="abs center" id="hook">Still answering every<br>order <span class="hl">by hand?</span> 😩</div>
+  <div class="abs" id="unread"><span id="unreadN">0</span> unread</div>
+  <div class="abs notif" style="top:262px"><div class="ic">💬</div><div class="tx"><div class="top"><span>WhatsApp</span><span>now</span></div><b>Chioma</b><span class="m">Do you still have jollof? How much?</span></div></div>
+  <div class="abs notif" style="top:340px"><div class="ic">💬</div><div class="tx"><div class="top"><span>WhatsApp</span><span>now</span></div><b>Tunde</b><span class="m">Hello?? Are you open today?</span></div></div>
+  <div class="abs notif" style="top:418px"><div class="ic">💬</div><div class="tx"><div class="top"><span>WhatsApp</span><span>1m ago</span></div><b>Mrs Adeyemi</b><span class="m">I sent my address since morning o 🙄</span></div></div>
+  <div class="abs notif" style="top:496px"><div class="ic">💬</div><div class="tx"><div class="top"><span>WhatsApp</span><span>3m ago</span></div><b>Emeka</b><span class="m">Send your account number pls</span></div></div>
+  <div class="abs notif" style="top:574px"><div class="ic">💬</div><div class="tx"><div class="top"><span>WhatsApp</span><span>5m ago</span></div><b>Blessing</b><span class="m">Is delivery to Lekki available?</span></div></div>
+  <div class="abs notif" style="top:652px"><div class="ic">💬</div><div class="tx"><div class="top"><span>WhatsApp</span><span>12m ago</span></div><b>Kunle</b><span class="m">Never mind, I'll buy somewhere else.</span></div></div>
+
+  <!-- Scene 2 -->
+  <div class="abs center" id="intro1">Meet your</div>
+  <div class="abs center" id="intro2">24/7 WhatsApp<br><span class="hl">Order Bot</span> 🤖</div>
+
+  <!-- Captions -->
+  <div class="abs cap" id="c1">⚡ Replies instantly<small>Day or night — no customer waits</small></div>
+  <div class="abs cap" id="c2">🍛 Customers order<br>straight from your menu</div>
+  <div class="abs cap" id="c3">🛒 Cart, delivery &amp; address<small>All collected automatically</small></div>
+  <div class="abs cap" id="c4">💳 Payment details<br>sent instantly</div>
+  <div class="abs cap" id="c6">One tap from you…<small>your customer gets updated on WhatsApp ✨</small></div>
+
+  <!-- Phone -->
+  <div class="abs" id="phone">
+    <div class="screen">
+      <div class="sbar"><span>9:41</span><span>●●● ⌁ 100%</span></div>
+      <div class="wahead"><div class="av">🍲</div><div><b>Mama Tee's Kitchen</b><small id="status">online</small></div></div>
+      <div id="chat"><div id="chatInner">
+        <div class="b me"  data-t="6.9">Hi</div>
+        <div class="b bot" data-t="7.7">👋 Welcome to *Mama Tee's Kitchen*!
+
+Reply with a number:
+*1* · Order food
+*2* · View my cart
+*3* · Hours &amp; location
+*4* · Track my order
+*5* · Talk to a person</div>
+        <div class="b me"  data-t="9.2">1</div>
+        <div class="b bot" data-t="9.8">🍽️ *Our Menu*
+
+*1.* Jollof Rice &amp; Chicken — ₦4,500
+*2.* Fried Rice &amp; Turkey — ₦5,500
+*3.* Pounded Yam &amp; Egusi — ₦5,000
+*4.* Ofada Rice &amp; Ayamase — ₦4,800
+*5.* Small Chops (10 pcs) — ₦3,500</div>
+        <div class="b me"  data-t="10.9">1</div>
+        <div class="b bot" data-t="11.3">How many *Jollof Rice &amp; Chicken*?</div>
+        <div class="b me"  data-t="11.9">2</div>
+        <div class="b bot" data-t="12.3">✅ Added 2 × Jollof Rice &amp; Chicken
+Subtotal: *₦9,000*</div>
+        <div class="b me"  data-t="12.9">C</div>
+        <div class="b bot" data-t="13.3">👤 What name should we use?</div>
+        <div class="b me"  data-t="13.9">Tunde</div>
+        <div class="b bot" data-t="14.3">*1* · Delivery (+₦1,500)
+*2* · Pickup</div>
+        <div class="b me"  data-t="14.8">1</div>
+        <div class="b bot" data-t="15.2">📍 Send your delivery address</div>
+        <div class="b me"  data-t="15.95">12 Admiralty Way, Lekki</div>
+        <div class="b bot" data-t="16.4">📋 2 × Jollof Rice — ₦9,000
+🛵 Delivery — ₦1,500
+*Total: ₦10,500*
+
+*1* · Confirm   *2* · Cancel</div>
+        <div class="b me"  data-t="16.95">1</div>
+        <div class="b bot" data-t="17.35">🎉 Order *MT1043* received!
+
+💳 Pay *₦10,500* to
+Moniepoint · 0123456789</div>
+        <div class="b bot" data-t="19.85">✅ Payment received! We're cooking now 🔥</div>
+        <div class="b bot" data-t="20.85">👩🏾‍🍳 Your order is being prepared</div>
+        <div class="b bot" data-t="21.85">🛵 On its way to 12 Admiralty Way!</div>
+        <div class="b bot" data-t="22.85">🎉 Delivered. Enjoy your meal, Tunde!</div>
+      </div></div>
+      <div class="inbar"><div class="field ph" id="field">Message</div><div class="send">➤</div></div>
+    </div>
+  </div>
+
+  <!-- Scene 4 -->
+  <div class="abs" id="banner"><div class="ic">🛎️</div><div style="flex:1"><div class="top"><span>ORDER BOT</span><span>now</span></div><b>New order MT1043 · ₦10,500</b><span>Tunde · 2 × Jollof Rice · Delivery</span></div></div>
+  <div class="abs" id="card">
+    <div class="row"><span class="id">MT1043 · Tunde</span><span class="amt">₦10,500</span></div>
+    <div class="meta">just now · 🛵 Delivery · <span class="pill" id="pill">⏳ Awaiting payment</span></div>
+    <div class="steps"><i id="s1"></i><i id="s2"></i><i id="s3"></i><i id="s4"></i></div>
+    <div class="slabels"><span>Paid</span><span>Preparing</span><span>On the way</span><span>Delivered</span></div>
+    <div class="items">2 × Jollof Rice &amp; Chicken · 📍 12 Admiralty Way, Lekki</div>
+    <div id="btn">Confirm payment</div>
+  </div>
+  <div class="abs" id="tap"></div>
+
+  <!-- Scene 5 -->
+  <div class="abs center" id="benTitle">Why owners <span class="hl">love it</span></div>
+  <div class="abs ben" style="top:240px"><div class="e">⏰</div><div><b>Replies in seconds</b><small>even at 2am, even when you're busy</small></div></div>
+  <div class="abs ben" style="top:354px"><div class="e">📦</div><div><b>Never miss an order</b><small>every chat becomes a clean order</small></div></div>
+  <div class="abs ben" style="top:468px"><div class="e">📍</div><div><b>No more mix-ups</b><small>names, items &amp; addresses captured right</small></div></div>
+  <div class="abs ben" style="top:582px"><div class="e">📱</div><div><b>Works on any phone</b><small>your customers just use WhatsApp</small></div></div>
+
+  <!-- Scene 6 -->
+  <div class="abs" id="ctaIcon">🤖</div>
+  <div class="abs center" id="ctaTitle">Get your own<br><span class="hl">WhatsApp Order Bot</span></div>
+  <div class="abs center" id="ctaSub">Set up for your business in days.<br>Your menu. Your prices. Your number.</div>
+  <div class="abs" id="ctaBtn">📩 <span id="ctaText">DM us to get started</span></div>
+  <div class="abs center" id="ctaFoot">Restaurants · Bakeries · Boutiques · Pharmacies · Small chops vendors</div>
+
+<script>
+// ---------- tiny deterministic timeline ----------
+const E = {
+  lin: (p) => p,
+  out: (p) => 1 - Math.pow(1 - p, 3),
+  in: (p) => p * p * p,
+  inOut: (p) => (p < .5 ? 4 * p * p * p : 1 - Math.pow(-2 * p + 2, 3) / 2),
+  back: (p) => { const c = 1.70158, c3 = c + 1; return 1 + c3 * Math.pow(p - 1, 3) + c * Math.pow(p - 1, 2); },
+};
+const DEF = { o: 1, x: 0, y: 0, s: 1, r: 0 };
+const tweens = [];
+function tw(target, start, dur, from, to, ease = 'out') {
+  const els = typeof target === 'string' ? document.querySelectorAll(target) : [target];
+  els.forEach((el) => tweens.push({ el, start, dur, from, to, ease }));
+}
+const inn = (sel, t, d = .45, extra = {}) => tw(sel, t, d, { o: 0, y: 24, s: .96, ...extra }, { o: 1, y: 0, s: 1 }, 'out');
+const outt = (sel, t, d = .35, to = {}) => tw(sel, t, d, {}, { o: 0, y: -24, ...to }, 'in');
+
+// Scene 1
+inn('#hook', .15, .5);
+tw('#unread', .45, .45, { o: 0, s: .4 }, { o: 1, s: 1 }, 'back');
+document.querySelectorAll('.notif').forEach((n, i) => {
+  const r = (i % 2 ? 1 : -1) * (1.5 + (i % 3));
+  tw(n, .5 + i * .38, .45, { o: 0, y: -70, s: .9, r: r * 2 }, { o: 1, y: 0, s: 1, r }, 'back');
+  tw(n, 3.45 + i * .03, .4, {}, { o: 0, y: 60, s: .85 }, 'in');
+});
+outt('#hook', 3.45); outt('#unread', 3.45);
+
+// Scene 2
+inn('#intro1', 4.0, .45);
+tw('#intro2', 4.2, .55, { o: 0, s: .75 }, { o: 1, s: 1 }, 'back');
+outt('#intro1', 5.25, .4, { y: -60 }); outt('#intro2', 5.3, .4, { y: -60 });
+tw('#phone', 5.35, .8, { y: 760 }, { y: 0 }, 'out');
+
+// Captions (customer side)
+const caps = [['#c1', 6.55, 9.05], ['#c2', 9.15, 12.45], ['#c3', 12.55, 16.75], ['#c4', 16.85, 17.85]];
+caps.forEach(([c, a, b]) => { inn(c, a, .4); outt(c, b, .3); });
+
+// Scene 4 — owner side
+tw('#phone', 17.75, .7, {}, { y: 168, s: .72 }, 'inOut');
+tw('#banner', 18.0, .5, { o: 0, y: -140 }, { o: 1, y: 0 }, 'back');
+tw('#banner', 19.15, .4, {}, { o: 0, y: -140 }, 'in');
+tw('#card', 18.7, .55, { o: 0, y: -60, s: .92 }, { o: 1, y: 0, s: 1 }, 'back');
+inn('#c6', 19.25, .4);
+const PRESS = [19.6, 20.6, 21.6, 22.6];
+tw('#tap', 0, .01, { o: 0 }, { o: 0 }); // hidden until the first tap
+PRESS.forEach((p, i) => {
+  tw('#btn', p, .09, {}, { s: .93 }, 'out');
+  tw('#btn', p + .09, .2, {}, { s: 1 }, 'back');
+  tw('#tap', p - .05, .4, { o: .85, s: .35 }, { o: 0, s: 1.5 }, 'out');
+});
+tw('#card', 23.3, .45, {}, { o: 0, y: -80, s: .95 }, 'in');
+outt('#c6', 23.3);
+tw('#phone', 23.3, .55, {}, { o: 0, y: 760 }, 'in');
+
+// Scene 5 — benefits
+inn('#benTitle', 23.75, .45);
+document.querySelectorAll('.ben').forEach((b, i) => {
+  tw(b, 24.15 + i * .55, .5, { o: 0, x: -60 }, { o: 1, x: 0 }, 'back');
+  tw(b, 27.95 + i * .04, .35, {}, { o: 0, x: 60 }, 'in');
+});
+outt('#benTitle', 27.95);
+
+// Scene 6 — CTA
+tw('#ctaIcon', 28.45, .6, { o: 0, s: 0, r: -25 }, { o: 1, s: 1, r: 0 }, 'back');
+inn('#ctaTitle', 28.8, .5);
+inn('#ctaSub', 29.2, .5);
+tw('#ctaBtn', 29.7, .55, { o: 0, s: .6 }, { o: 1, s: 1 }, 'back');
+inn('#ctaFoot', 30.2, .5);
+
+const DURATION = 33.5;
+
+// ---------- chat engine ----------
+const bubbles = [...document.querySelectorAll('.b')].map((el) => {
+  el.innerHTML = el.innerHTML.replace(/\*([^*\n]+)\*/g, '<b>$1</b>') + '<time>9:41</time>';
+  return { el, t: +el.dataset.t, me: el.classList.contains('me'), text: el.textContent.replace('9:41', '') };
+});
+bubbles.forEach((b) => tw(b.el, b.t, .26, { o: 0, s: .82, y: 10 }, { o: 1, s: 1, y: 0 }, 'back'));
+const chatH = () => document.getElementById('chat').clientHeight;
+let offsets = null;
+function computeOffsets() {
+  const H = chatH();
+  offsets = bubbles.map((b) => Math.min(0, H - (b.el.offsetTop + b.el.offsetHeight + 12)));
+}
+
+// ---------- render ----------
+const lerp = (a, b, p) => a + (b - a) * p;
+function render(t) {
+  if (!offsets) computeOffsets();
+  const state = new Map();
+  for (const w of tweens) {
+    let s = state.get(w.el);
+    if (!s) { s = { ...DEF, ...w.from }; state.set(w.el, s); }
+    if (t >= w.start) {
+      const p = Math.min(1, (t - w.start) / w.dur), e = E[w.ease](p);
+      for (const k in w.to) {
+        const a = w.from[k] !== undefined ? w.from[k] : (w._a ??= {})[k] ?? (w._a[k] = s[k]);
+        s[k] = lerp(a, w.to[k], e);
+      }
+    }
+  }
+  for (const [el, s] of state) {
+    el.style.opacity = s.o;
+    el.style.transform = `translate(${s.x}px, ${s.y}px) scale(${s.s}) rotate(${s.r}deg)`;
+  }
+
+  // chat scroll follows the newest visible bubble
+  let off = 0, prev = 0;
+  for (let i = 0; i < bubbles.length; i++) {
+    if (t < bubbles[i].t) break;
+    const p = Math.min(1, (t - bubbles[i].t) / .35);
+    off = lerp(prev, offsets[i], E.out(p));
+    prev = offsets[i];
+  }
+  document.getElementById('chatInner').style.transform = `translateY(${off}px)`;
+
+  // typing in the input field before each customer message
+  const field = document.getElementById('field');
+  const typing = bubbles.find((b) => b.me && t >= b.t - .5 && t < b.t);
+  if (typing) {
+    const n = Math.ceil(typing.text.length * Math.min(1, (t - (typing.t - .5)) / .38));
+    field.classList.remove('ph');
+    field.innerHTML = typing.text.slice(0, n).replace(/&/g, '&amp;').replace(/</g, '&lt;') + '<span class="caret"></span>';
+  } else { field.classList.add('ph'); field.textContent = 'Message'; }
+
+  // "typing…" in the header just before bot replies
+  document.getElementById('status').textContent = bubbles.some((b) => !b.me && t >= b.t - .4 && t < b.t) ? 'typing…' : 'online';
+
+  // unread counter
+  document.getElementById('unreadN').textContent = Math.round(47 * E.out(Math.max(0, Math.min(1, (t - .5) / 2.3))));
+
+  // dashboard button + progress
+  const step = PRESS.filter((p) => t >= p + .1).length;
+  const labels = ['Confirm payment', 'Start preparing', 'Send out for delivery', 'Mark delivered', '✓ Delivered'];
+  const pills = ['⏳ Awaiting payment', '✅ Paid', '👩🏾‍🍳 Preparing', '🛵 On the way', '🎉 Delivered'];
+  const btn = document.getElementById('btn');
+  btn.textContent = labels[step]; btn.classList.toggle('done', step === 4);
+  const pill = document.getElementById('pill');
+  pill.textContent = pills[step];
+  pill.style.background = step === 0 ? '#fff4e5' : '#e7f8ee'; pill.style.color = step === 0 ? '#8a5300' : '#0f7a3c';
+  PRESS.forEach((p, i) => {
+    const f = E.out(Math.max(0, Math.min(1, (t - (p + .1)) / .35)));
+    document.getElementById('s' + (i + 1)).style.setProperty('--f', f);
+  });
+
+  // CTA pulse
+  if (t > 30.4) {
+    const k = 1 + .035 * Math.sin((t - 30.4) * Math.PI * 1.6);
+    document.getElementById('ctaBtn').style.transform = `scale(${k})`;
+  }
+
+  // drifting background blobs
+  document.getElementById('blob1').style.transform = `translate(${Math.sin(t * .35) * 60}px, ${Math.cos(t * .3) * 40 + t * 6}px)`;
+  document.getElementById('blob2').style.transform = `translate(${Math.cos(t * .3) * 50}px, ${Math.sin(t * .4) * 50 - t * 5}px)`;
+}
+
+// sound cues for the recorder (seconds)
+const CUES = [];
+document.querySelectorAll('.notif').forEach((_, i) => CUES.push({ t: .5 + i * .38, k: 'notif' }));
+[3.45, 5.3, 17.75, 23.3, 27.95].forEach((t) => CUES.push({ t, k: 'whoosh' }));
+bubbles.forEach((b) => CUES.push({ t: b.t, k: b.me ? 'send' : 'recv' }));
+CUES.push({ t: 18.0, k: 'ding' });
+PRESS.forEach((p) => CUES.push({ t: p, k: 'tap' }));
+CUES.push({ t: 22.7, k: 'chime' }, { t: 28.45, k: 'pop' }, { t: 29.7, k: 'chime' });
+
+window.PROMO = { render, DURATION, CUES, setCta: (s) => { document.getElementById('ctaText').textContent = s; } };
+document.fonts.ready.then(() => { computeOffsets(); render(+(location.hash.slice(1) || 0)); });
+</script>
+</body>
+</html>

@@ -6,7 +6,8 @@
   "scripts": {
     "start": "node server.js",
     "record-demo": "node scripts/record-demo.js",
-    "live": "node --env-file=.env server.js"
+    "live": "node --env-file=.env server.js",
+    "promo": "node scripts/make-promo.js"
   },
   "engines": {
     "node": ">=18"
