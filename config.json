@@ -1,0 +1,46 @@
+{
+  "businessName": "Mama Tee's Kitchen",
+  "currency": "₦",
+  "hours": "Mon–Sat: 9:00am – 9:00pm\nSun: 12:00pm – 8:00pm",
+  "location": "12 Adeola Odeku Street, Victoria Island, Lagos",
+  "deliveryFee": 1500,
+  "bank": {
+    "name": "Moniepoint",
+    "accountNumber": "0000000000",
+    "accountName": "Mama Tee's Kitchen"
+  },
+  "menu": [
+    {
+      "name": "Jollof Rice & Chicken",
+      "price": 4500
+    },
+    {
+      "name": "Fried Rice & Turkey",
+      "price": 5500
+    },
+    {
+      "name": "Amala, Ewedu & Gbegiri (with beef)",
+      "price": 4000
+    },
+    {
+      "name": "Pounded Yam & Egusi (with goat meat)",
+      "price": 5000
+    },
+    {
+      "name": "Ofada Rice & Ayamase",
+      "price": 4800
+    },
+    {
+      "name": "Small Chops (10 pcs)",
+      "price": 3500
+    },
+    {
+      "name": "Zobo (50cl)",
+      "price": 1000
+    },
+    {
+      "name": "Chapman (50cl)",
+      "price": 1500
+    }
+  ]
+}

@@ -1,0 +1,28 @@
+# Render Blueprint: New → Blueprint → pick this repo.
+services:
+  - type: web
+    name: whatsapp-order-bot
+    runtime: node
+    plan: starter            # always-on (~$7/mo); the free plan sleeps and has no disk
+    region: frankfurt        # closest Render region to Nigeria
+    buildCommand: npm install --omit=dev
+    startCommand: node server.js
+    healthCheckPath: /healthz
+    disk:
+      name: data
+      mountPath: /var/data
+      sizeGB: 1
+    envVars:
+      - key: DATA_DIR
+        value: /var/data
+      # Secrets — Render asks for these when you create the Blueprint (copy from your local .env)
+      - key: WHATSAPP_TOKEN
+        sync: false
+      - key: WHATSAPP_PHONE_NUMBER_ID
+        sync: false
+      - key: WHATSAPP_VERIFY_TOKEN
+        sync: false
+      - key: DASHBOARD_PASSWORD
+        sync: false
+      - key: OWNER_WHATSAPP
+        sync: false

@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Privacy Policy</title>
+<style>
+  :root { --ink: #1f2328; --muted: #667085; --page: #fff; --brand: #075e54; }
+  @media (prefers-color-scheme: dark) { :root { --ink: #e8eaed; --muted: #9aa3ad; --page: #0f1317; --brand: #25d366; } }
+  body { margin: 0; background: var(--page); color: var(--ink); font: 16px/1.6 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+  main { max-width: 720px; margin: 0 auto; padding: 32px 16px 64px; }
+  h1 { font-size: 28px; margin: 0 0 4px; } h2 { font-size: 19px; margin: 28px 0 6px; color: var(--brand); }
+  .muted { color: var(--muted); font-size: 14px; } ul { padding-left: 20px; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Privacy Policy</h1>
+  <p class="muted"><span id="biz">This business</span> WhatsApp ordering assistant · Last updated 1 October 2026</p>
+
+  <p>This policy explains what information our WhatsApp ordering assistant collects when you message us, how we use it, and the choices you have.</p>
+
+  <h2>What we collect</h2>
+  <ul>
+    <li>Your WhatsApp phone number and profile name, which WhatsApp shares with us when you message us.</li>
+    <li>The messages you send us, including your order, name and delivery address.</li>
+    <li>Order details such as items, totals, payment status and delivery status.</li>
+  </ul>
+
+  <h2>How we use it</h2>
+  <ul>
+    <li>To take, prepare and deliver your order.</li>
+    <li>To send you order confirmations and status updates on WhatsApp.</li>
+    <li>To answer your questions when you ask to speak with a person.</li>
+  </ul>
+  <p>We do not sell your information, and we do not use it for advertising.</p>
+
+  <h2>Who we share it with</h2>
+  <ul>
+    <li><b>Meta / WhatsApp</b>, which delivers messages between you and us under the WhatsApp Business terms.</li>
+    <li><b>Payment providers</b> (for example Paystack) if you choose to pay online. They process your payment under their own privacy policies.</li>
+    <li><b>Delivery riders</b>, who receive your name, phone number and address only to deliver your order.</li>
+  </ul>
+
+  <h2>How long we keep it</h2>
+  <p>We keep order records for up to 12 months for accounting and customer service, then delete them. Chat messages are kept only as long as needed to handle your order.</p>
+
+  <h2>Your choices</h2>
+  <p>You can stop receiving messages at any time by not messaging us or by blocking our number on WhatsApp. To ask for a copy of your data or for it to be deleted, send us a WhatsApp message saying <b>delete my data</b> and we will do it within 30 days.</p>
+
+  <h2>Contact</h2>
+  <p>Questions about this policy? Message us on WhatsApp or email <span id="email">the business</span>.</p>
+</main>
+<script>
+  fetch('/api/business').then(r => r.json()).then(b => {
+    document.getElementById('biz').textContent = b.businessName;
+    document.title = 'Privacy Policy · ' + b.businessName;
+    if (b.contactEmail) document.getElementById('email').textContent = b.contactEmail;
+  }).catch(() => {});
+</script>
+</body>
+</html>

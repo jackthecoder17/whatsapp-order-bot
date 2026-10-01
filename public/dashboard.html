@@ -1,0 +1,521 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#075e54">
+<title>Orders Dashboard</title>
+<style>
+  :root {
+    --brand: #075e54; --brand-2: #128c7e; --accent: #25d366;
+    --ink: #1f2328; --muted: #667085; --line: #e4e7ec; --card: #fff; --page: #f5f6f8; --soft: #eef2f6;
+    --warn-bg: #fff4e5; --warn-line: #f5c26b; --ok-bg: #e7f8ee; --info-bg: #e8f1fd; --bad-bg: #fdecec; --bad: #c0362c;
+    --bubble-in: #fff; --bubble-out: #dcf8c6; --chat-bg: #ece5dd;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --ink: #e8eaed; --muted: #9aa3ad; --line: #2c333a; --card: #1a1f24; --page: #0f1317; --soft: #242a30;
+      --warn-bg: #3a2c12; --warn-line: #8a6a2a; --ok-bg: #16331f; --info-bg: #172a40; --bad-bg: #3b1a17; --bad: #ff8a80;
+      --bubble-in: #1f262c; --bubble-out: #054d44; --chat-bg: #0b1418;
+    }
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: var(--page); color: var(--ink); font-size: 15px; }
+  button, input { font: inherit; color: inherit; }
+  button { cursor: pointer; }
+  [hidden] { display: none !important; }
+
+  /* Header + tabs */
+  header { background: var(--brand); color: #fff; position: sticky; top: 0; z-index: 10; }
+  .bar { display: flex; align-items: center; gap: 10px; padding: 12px 16px; }
+  .bar h1 { font-size: 17px; margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .live { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 0 3px rgba(37,211,102,.3); flex: none; }
+  .live.off { background: #f59e0b; box-shadow: none; }
+  .bar .spacer { flex: 1; }
+  .icon-btn { background: rgba(255,255,255,.12); border: 0; color: #fff; border-radius: 10px; padding: 7px 10px; font-size: 13px; }
+  nav.tabs { display: flex; padding: 0 8px; }
+  nav.tabs button { flex: 1; background: none; border: 0; color: rgba(255,255,255,.75); padding: 10px 6px 12px; font-weight: 600; font-size: 14px; border-bottom: 3px solid transparent; }
+  nav.tabs button.on { color: #fff; border-bottom-color: #fff; }
+  .badge { display: inline-block; min-width: 20px; padding: 1px 6px; border-radius: 10px; background: #fff; color: var(--brand); font-size: 12px; margin-left: 4px; }
+  .badge.hot { background: #ff5a4e; color: #fff; }
+
+  main { max-width: 1100px; margin: 0 auto; padding: 16px; }
+
+  /* Stats */
+  .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 14px; }
+  @media (max-width: 700px) { .stats { grid-template-columns: repeat(2, 1fr); } }
+  .stat { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; }
+  .stat small { color: var(--muted); font-size: 11.5px; text-transform: uppercase; letter-spacing: .04em; }
+  .stat b { display: block; font-size: 22px; margin-top: 2px; font-variant-numeric: tabular-nums; }
+
+  /* Filters */
+  .toolbar { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-bottom: 12px; }
+  .chips { display: flex; gap: 6px; overflow-x: auto; flex: 1 1 auto; scrollbar-width: none; }
+  .chip { flex: none; border: 1px solid var(--line); background: var(--card); border-radius: 18px; padding: 6px 12px; font-size: 13px; }
+  .chip.on { background: var(--brand); border-color: var(--brand); color: #fff; }
+  .search { flex: 1 1 200px; min-width: 0; border: 1px solid var(--line); background: var(--card); border-radius: 10px; padding: 8px 12px; }
+
+  /* Orders */
+  .orders { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 12px; }
+  @media (max-width: 700px) { .orders { grid-template-columns: 1fr; } }
+  .order { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 14px; display: flex; flex-direction: column; gap: 8px; }
+  .order.new { animation: flash 2s ease-out; }
+  .order.needs-action { border-left: 4px solid var(--warn-line); }
+  @keyframes flash { from { box-shadow: 0 0 0 4px rgba(37,211,102,.55); } to { box-shadow: 0 0 0 0 rgba(37,211,102,0); } }
+  .row { display: flex; justify-content: space-between; gap: 10px; align-items: baseline; }
+  .oid { font-weight: 700; }
+  .total { font-weight: 700; font-variant-numeric: tabular-nums; }
+  .meta { color: var(--muted); font-size: 13px; }
+  .items { margin: 0; padding-left: 18px; font-size: 14px; }
+  .addr { font-size: 13.5px; background: var(--soft); border-radius: 8px; padding: 6px 9px; }
+  .contact { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; font-size: 13px; color: var(--muted); }
+  .contact a { color: var(--brand-2); text-decoration: none; font-weight: 600; border: 1px solid var(--line); border-radius: 8px; padding: 3px 8px; }
+  .steps { display: flex; gap: 4px; }
+  .steps span { flex: 1; height: 5px; border-radius: 3px; background: var(--soft); }
+  .steps span.done { background: var(--accent); }
+  .steps-label { display: flex; justify-content: space-between; font-size: 11px; color: var(--muted); margin-top: -4px; }
+  .pill { display: inline-block; font-size: 12.5px; padding: 3px 10px; border-radius: 10px; background: var(--soft); }
+  .pill.pending_payment { background: var(--warn-bg); } .pill.paid, .pill.delivered { background: var(--ok-bg); }
+  .pill.cancelled { background: var(--bad-bg); } .pill.preparing, .pill.out_for_delivery, .pill.ready_for_pickup { background: var(--info-bg); }
+  .actions { display: flex; gap: 6px; flex-wrap: wrap; }
+  .btn { border: 1px solid var(--line); background: var(--card); border-radius: 10px; padding: 9px 14px; font-size: 14px; font-weight: 600; }
+  .btn.primary { background: var(--brand); color: #fff; border-color: var(--brand); flex: 1; }
+  .btn.danger { color: var(--bad); }
+  .btn.small { padding: 6px 10px; font-size: 13px; }
+  .empty { color: var(--muted); background: var(--card); border: 1px dashed var(--line); border-radius: 12px; padding: 30px; text-align: center; }
+
+  /* Chats */
+  .chats { display: grid; grid-template-columns: 320px 1fr; gap: 12px; height: calc(100vh - 150px); min-height: 420px; }
+  @media (max-width: 800px) { .chats { grid-template-columns: 1fr; height: calc(100dvh - 130px); } .chats.open .chat-list { display: none; } .chats:not(.open) .thread { display: none; } }
+  .chat-list, .thread { background: var(--card); border: 1px solid var(--line); border-radius: 14px; overflow: hidden; display: flex; flex-direction: column; }
+  .chat-list .scroll { overflow-y: auto; flex: 1; }
+  .chat-item { display: flex; gap: 10px; padding: 12px 14px; border: 0; border-bottom: 1px solid var(--line); background: none; width: 100%; text-align: left; align-items: center; }
+  .chat-item.on { background: var(--soft); }
+  .chat-item .av { width: 38px; height: 38px; border-radius: 50%; background: var(--brand-2); color: #fff; display: grid; place-items: center; font-weight: 700; flex: none; }
+  .chat-item .txt { min-width: 0; flex: 1; }
+  .chat-item b { display: block; font-size: 14px; }
+  .chat-item small { display: block; color: var(--muted); font-size: 12.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .chat-item .flag { font-size: 11px; background: #ff5a4e; color: #fff; border-radius: 8px; padding: 2px 7px; flex: none; }
+  .thread-head { display: flex; align-items: center; gap: 8px; padding: 10px 12px; border-bottom: 1px solid var(--line); }
+  .thread-head b { flex: 1; }
+  .msgs { flex: 1; overflow-y: auto; padding: 12px; display: flex; flex-direction: column; gap: 6px; background: var(--chat-bg); }
+  .bubble { max-width: 80%; padding: 7px 10px; border-radius: 9px; font-size: 14px; line-height: 1.38; white-space: pre-wrap; word-wrap: break-word; box-shadow: 0 1px 1px rgba(0,0,0,.06); }
+  .bubble.customer { background: var(--bubble-in); align-self: flex-start; }
+  .bubble.bot, .bubble.owner { background: var(--bubble-out); align-self: flex-end; }
+  .bubble .who { display: block; font-size: 11px; color: var(--muted); margin-top: 3px; text-align: right; }
+  .handoff { background: var(--warn-bg); border-bottom: 1px solid var(--warn-line); padding: 8px 12px; font-size: 13px; display: flex; gap: 8px; align-items: center; }
+  .handoff span { flex: 1; }
+  form.reply { display: flex; gap: 8px; padding: 10px; border-top: 1px solid var(--line); }
+  form.reply input { flex: 1; min-width: 0; border: 1px solid var(--line); background: var(--page); border-radius: 20px; padding: 10px 14px; }
+  form.reply button { border: 0; background: var(--brand); color: #fff; border-radius: 20px; padding: 0 16px; font-weight: 600; }
+
+  /* Menu */
+  .menu-list { background: var(--card); border: 1px solid var(--line); border-radius: 14px; overflow: hidden; }
+  .menu-row { display: flex; gap: 10px; align-items: center; padding: 12px 14px; border-bottom: 1px solid var(--line); flex-wrap: wrap; }
+  .menu-row.sold .name { color: var(--muted); text-decoration: line-through; }
+  .menu-row .name { flex: 1 1 180px; font-weight: 600; }
+  .price { display: flex; align-items: center; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; background: var(--page); }
+  .price span { padding: 0 8px; color: var(--muted); }
+  .price input { border: 0; background: transparent; width: 90px; padding: 8px 8px 8px 0; font-variant-numeric: tabular-nums; }
+  .toggle { display: flex; align-items: center; gap: 8px; border: 0; background: none; font-size: 13px; padding: 4px; min-width: 104px; }
+  .toggle i { width: 40px; height: 24px; border-radius: 12px; background: var(--line); position: relative; transition: background .2s; flex: none; }
+  .toggle i::after { content: ''; position: absolute; top: 3px; left: 3px; width: 18px; height: 18px; border-radius: 50%; background: #fff; transition: transform .2s; }
+  .toggle.on i { background: var(--accent); } .toggle.on i::after { transform: translateX(16px); }
+  form.add { display: flex; gap: 8px; padding: 12px 14px; flex-wrap: wrap; background: var(--soft); }
+  form.add input { border: 1px solid var(--line); background: var(--card); border-radius: 10px; padding: 9px 12px; }
+  form.add input[name=name] { flex: 1 1 200px; } form.add input[name=price] { width: 120px; }
+  .hint { color: var(--muted); font-size: 13px; margin: 10px 2px; }
+
+  /* Login + toast */
+  .login { max-width: 340px; margin: 12vh auto; background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 24px; display: flex; flex-direction: column; gap: 12px; }
+  .login h2 { margin: 0; font-size: 20px; }
+  .login input { border: 1px solid var(--line); background: var(--page); border-radius: 10px; padding: 11px 12px; }
+  .login .err { color: var(--bad); font-size: 13px; min-height: 1em; }
+  .toast { position: fixed; left: 50%; bottom: 20px; transform: translateX(-50%) translateY(120px); background: #111; color: #fff; padding: 12px 18px; border-radius: 12px; font-weight: 600; transition: transform .3s; z-index: 50; max-width: calc(100% - 32px); }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+
+  /* Embedded in the demo page */
+  body.embed main { padding: 12px; }
+  body.embed #logoutBtn { display: none; }
+</style>
+</head>
+<body>
+<section id="loginView" class="login" hidden>
+  <h2>🍲 Owner login</h2>
+  <form id="loginForm" style="display:contents">
+    <input type="password" id="pw" placeholder="Dashboard password" autocomplete="current-password" required>
+    <button class="btn primary">Log in</button>
+  </form>
+  <div class="err" id="loginErr"></div>
+</section>
+
+<div id="app" hidden>
+  <header>
+    <div class="bar">
+      <span class="live" id="live" title="Live"></span>
+      <h1 id="biz">Dashboard</h1>
+      <span class="spacer"></span>
+      <button class="icon-btn" id="soundBtn" title="New-order sound">🔔 On</button>
+      <button class="icon-btn" id="logoutBtn">Log out</button>
+    </div>
+    <nav class="tabs">
+      <button data-tab="orders" class="on">Orders <span class="badge" id="bOrders" hidden></span></button>
+      <button data-tab="chats">Chats <span class="badge hot" id="bChats" hidden></span></button>
+      <button data-tab="menu">Menu</button>
+    </nav>
+  </header>
+
+  <main>
+    <!-- Orders -->
+    <section id="tab-orders">
+      <div class="stats">
+        <div class="stat"><small>Orders today</small><b id="sToday">0</b></div>
+        <div class="stat"><small>Paid today</small><b id="sRevenue">₦0</b></div>
+        <div class="stat"><small>Awaiting payment</small><b id="sPending">0</b></div>
+        <div class="stat"><small>In progress</small><b id="sActive">0</b></div>
+      </div>
+      <div class="toolbar">
+        <div class="chips" id="chips"></div>
+        <input class="search" id="search" type="search" placeholder="Search name, order ID, phone…">
+      </div>
+      <div class="orders" id="orders"></div>
+    </section>
+
+    <!-- Chats -->
+    <section id="tab-chats" hidden>
+      <div class="chats" id="chatsBox">
+        <div class="chat-list"><div class="scroll" id="chatList"></div></div>
+        <div class="thread">
+          <div class="thread-head">
+            <button class="btn small" id="backBtn">←</button>
+            <b id="threadName">Select a chat</b>
+            <a id="threadWa" class="btn small" target="_blank" rel="noopener" hidden>Open in WhatsApp</a>
+          </div>
+          <div class="handoff" id="handoff" hidden>
+            <span>🙋🏾 This customer asked for a person. The bot is paused.</span>
+            <button class="btn small" id="releaseBtn">Hand back to bot</button>
+          </div>
+          <div class="msgs" id="msgs"></div>
+          <form class="reply" id="replyForm">
+            <input id="replyInput" placeholder="Type a reply…" autocomplete="off">
+            <button>Send</button>
+          </form>
+        </div>
+      </div>
+    </section>
+
+    <!-- Menu -->
+    <section id="tab-menu" hidden>
+      <p class="hint">Switch off anything that's finished and customers won't see it. Price changes apply to new orders.</p>
+      <div class="menu-list">
+        <div id="menuRows"></div>
+        <form class="add" id="addForm">
+          <input name="name" placeholder="New item, e.g. Plantain (dodo)" required maxlength="80">
+          <input name="price" type="number" min="1" placeholder="Price ₦" required>
+          <button class="btn primary" style="flex:none">Add</button>
+        </form>
+      </div>
+    </section>
+  </main>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+const $ = (id) => document.getElementById(id);
+const naira = (n) => '₦' + Number(n).toLocaleString('en-NG');
+const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const fmt = (s) => esc(s).replace(/\*([^*\n]+)\*/g, '<b>$1</b>');
+const api = async (url, opts = {}) => {
+  const res = await fetch(url, { headers: { 'Content-Type': 'application/json' }, ...opts, body: opts.body && JSON.stringify(opts.body) });
+  if (res.status === 401) { showLogin(); throw new Error('login'); }
+  return res.json();
+};
+const store = { get(k) { try { return localStorage.getItem(k); } catch { return null; } }, set(k, v) { try { localStorage.setItem(k, v); } catch {} } };
+
+if (new URLSearchParams(location.search).has('embed')) document.body.classList.add('embed');
+
+function ago(iso) {
+  const s = Math.max(0, (Date.now() - new Date(iso)) / 1000);
+  if (s < 60) return 'just now';
+  if (s < 3600) return Math.floor(s / 60) + ' min ago';
+  if (s < 86400) return Math.floor(s / 3600) + ' h ago';
+  return new Date(iso).toLocaleDateString([], { day: 'numeric', month: 'short' });
+}
+const isToday = (iso) => new Date(iso).toDateString() === new Date().toDateString();
+
+// ---- Login ----
+function showLogin() { $('app').hidden = true; $('loginView').hidden = false; $('pw').focus(); }
+$('loginForm').onsubmit = async (e) => {
+  e.preventDefault();
+  const res = await fetch('/api/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ password: $('pw').value }) });
+  if (!res.ok) { $('loginErr').textContent = 'Wrong password'; return; }
+  $('loginView').hidden = true; start();
+};
+$('logoutBtn').onclick = async () => { await fetch('/api/logout', { method: 'POST' }); location.reload(); };
+
+// ---- Tabs ----
+let tab = store.get('dashTab') || 'orders';
+function showTab(t) {
+  tab = t; store.set('dashTab', t);
+  document.querySelectorAll('nav.tabs button').forEach((b) => b.classList.toggle('on', b.dataset.tab === t));
+  ['orders', 'chats', 'menu'].forEach((x) => ($('tab-' + x).hidden = x !== t));
+  if (t === 'chats' && openPhone) loadThread();
+}
+document.querySelectorAll('nav.tabs button').forEach((b) => (b.onclick = () => showTab(b.dataset.tab)));
+
+// ---- Sound + alerts ----
+let soundOn = store.get('dashSound') !== 'off';
+let audio;
+function renderSoundBtn() { $('soundBtn').textContent = soundOn ? '🔔 On' : '🔕 Off'; }
+$('soundBtn').onclick = () => { soundOn = !soundOn; store.set('dashSound', soundOn ? 'on' : 'off'); renderSoundBtn(); if (soundOn) beep(); };
+function beep() {
+  if (!soundOn) return;
+  try {
+    audio = audio || new (window.AudioContext || window.webkitAudioContext)();
+    [0, 0.18].forEach((t) => {
+      const o = audio.createOscillator(), g = audio.createGain();
+      o.frequency.value = 880; o.connect(g); g.connect(audio.destination);
+      g.gain.setValueAtTime(0.25, audio.currentTime + t);
+      g.gain.exponentialRampToValueAtTime(0.001, audio.currentTime + t + 0.15);
+      o.start(audio.currentTime + t); o.stop(audio.currentTime + t + 0.16);
+    });
+  } catch {}
+}
+let toastTimer, titleTimer, baseTitle = document.title;
+function alertOwner(msg) {
+  beep();
+  $('toast').textContent = msg; $('toast').classList.add('show');
+  clearTimeout(toastTimer); toastTimer = setTimeout(() => $('toast').classList.remove('show'), 4000);
+  if (document.hidden) {
+    let on = false; clearInterval(titleTimer);
+    titleTimer = setInterval(() => { document.title = (on = !on) ? '🔔 ' + msg : baseTitle; }, 1000);
+  }
+}
+document.addEventListener('visibilitychange', () => { if (!document.hidden) { clearInterval(titleTimer); document.title = baseTitle; } });
+
+// ---- Data ----
+let data = null, lastSnap = '', knownOrders = null, knownHuman = null;
+const ACTIVE = ['pending_payment', 'paid', 'preparing', 'out_for_delivery', 'ready_for_pickup'];
+const PAID = ['paid', 'preparing', 'out_for_delivery', 'ready_for_pickup', 'delivered'];
+
+async function refresh() {
+  let d;
+  try { d = await api('/api/dashboard'); $('live').classList.remove('off'); }
+  catch (e) { $('live').classList.add('off'); return; }
+  const snap = JSON.stringify(d);
+  if (snap === lastSnap) return;
+  lastSnap = snap; data = d;
+
+  // Alerts for new orders / new "talk to a person" requests
+  const ids = new Set(d.orders.map((o) => o.id));
+  const human = new Set(d.chats.filter((c) => c.needsHuman).map((c) => c.phone));
+  let fresh = [];
+  if (knownOrders) {
+    fresh = d.orders.filter((o) => !knownOrders.has(o.id));
+    if (fresh.length) alertOwner(`New order ${fresh[0].id} · ${naira(fresh[0].total)}`);
+    const newHuman = [...human].filter((p) => !knownHuman.has(p));
+    if (newHuman.length) alertOwner('A customer wants to talk to you');
+  }
+  knownOrders = ids; knownHuman = human;
+
+  if ($('biz').textContent !== d.businessName) { $('biz').textContent = d.businessName; baseTitle = document.title = d.businessName + ' · Orders'; }
+  renderOrders(fresh.map((o) => o.id));
+  renderChats();
+  if (!$('menuRows').contains(document.activeElement)) renderMenu();
+  if (tab === 'chats' && openPhone) loadThread();
+}
+
+// ---- Orders ----
+const FILTERS = [
+  ['active', 'Active', (o) => ACTIVE.includes(o.status)],
+  ['pending_payment', 'Awaiting payment', (o) => o.status === 'pending_payment'],
+  ['done', 'Completed', (o) => o.status === 'delivered'],
+  ['cancelled', 'Cancelled', (o) => o.status === 'cancelled'],
+  ['all', 'All', () => true],
+];
+let filter = store.get('dashFilter') || 'active';
+
+const NEXT = {
+  pending_payment: [['paid', 'Confirm payment']],
+  paid: [['preparing', 'Start preparing']],
+  preparing: [['out_for_delivery', 'Send out for delivery', 'delivery'], ['ready_for_pickup', 'Ready for pickup', 'pickup']],
+  out_for_delivery: [['delivered', 'Mark delivered']],
+  ready_for_pickup: [['delivered', 'Picked up']],
+};
+const STEP = { pending_payment: 0, paid: 1, preparing: 2, out_for_delivery: 3, ready_for_pickup: 3, delivered: 4 };
+
+function renderOrders(freshIds = []) {
+  if (!data) return;
+  const orders = data.orders;
+  const today = orders.filter((o) => isToday(o.createdAt));
+  $('sToday').textContent = today.length;
+  $('sRevenue').textContent = naira(today.filter((o) => PAID.includes(o.status)).reduce((s, o) => s + o.total, 0));
+  $('sPending').textContent = orders.filter((o) => o.status === 'pending_payment').length;
+  const active = orders.filter((o) => ACTIVE.includes(o.status)).length;
+  $('sActive').textContent = orders.filter((o) => ACTIVE.includes(o.status) && o.status !== 'pending_payment').length;
+  $('bOrders').hidden = !active; $('bOrders').textContent = active;
+
+  $('chips').innerHTML = FILTERS.map(([k, label, fn]) =>
+    `<button class="chip ${k === filter ? 'on' : ''}" data-f="${k}">${label} · ${orders.filter(fn).length}</button>`).join('');
+
+  const q = $('search').value.trim().toLowerCase();
+  const fn = FILTERS.find((f) => f[0] === filter)[2];
+  const list = orders.filter(fn).filter((o) => !q || [o.id, o.name, o.phone, o.address].join(' ').toLowerCase().includes(q));
+
+  if (!list.length) {
+    $('orders').innerHTML = `<div class="empty">${orders.length ? 'No orders match this filter.' : 'No orders yet. They’ll appear here the moment a customer checks out 🛎️'}</div>`;
+    return;
+  }
+
+  $('orders').innerHTML = list.map((o) => {
+    const acts = (NEXT[o.status] || []).filter((a) => !a[2] || a[2] === o.mode)
+      .map(([s, label]) => `<button class="btn primary" data-id="${o.id}" data-s="${s}">${label}</button>`).join('');
+    const cancel = ['pending_payment', 'paid', 'preparing'].includes(o.status)
+      ? `<button class="btn danger" data-id="${o.id}" data-s="cancelled">Cancel</button>` : '';
+    const real = !o.phone.startsWith('sim-');
+    const step = STEP[o.status] ?? 0;
+    const steps = o.status === 'cancelled' ? '' : `
+      <div class="steps">${[1, 2, 3, 4].map((i) => `<span class="${step >= i ? 'done' : ''}"></span>`).join('')}</div>
+      <div class="steps-label"><span>Paid</span><span>Preparing</span><span>${o.mode === 'delivery' ? 'On the way' : 'Ready'}</span><span>Done</span></div>`;
+    return `<article class="order ${freshIds.includes(o.id) ? 'new' : ''} ${o.status === 'pending_payment' ? 'needs-action' : ''}">
+      <div class="row"><span class="oid">${o.id} · ${esc(o.name)}</span><span class="total">${naira(o.total)}</span></div>
+      <div class="meta">${ago(o.createdAt)} · ${o.mode === 'delivery' ? '🛵 Delivery' : '🛍️ Pickup'} · <span class="pill ${o.status}">${esc(data.statuses[o.status] || o.status)}</span></div>
+      ${steps}
+      <ul class="items">${o.items.map((i) => `<li>${i.qty} × ${esc(i.name)}</li>`).join('')}</ul>
+      ${o.address ? `<div class="addr">📍 ${esc(o.address)}</div>` : ''}
+      <div class="contact">📞 ${real ? '+' + esc(o.phone) : 'Demo customer'}
+        ${real ? `<a href="https://wa.me/${esc(o.phone)}" target="_blank" rel="noopener">WhatsApp</a><a href="tel:+${esc(o.phone)}">Call</a>` : ''}
+        <a href="#" data-chat="${esc(o.phone)}">View chat</a></div>
+      ${acts || cancel ? `<div class="actions">${acts}${cancel}</div>` : ''}
+    </article>`;
+  }).join('');
+}
+
+$('chips').onclick = (e) => { const b = e.target.closest('[data-f]'); if (!b) return; filter = b.dataset.f; store.set('dashFilter', filter); renderOrders(); };
+$('search').oninput = () => renderOrders();
+$('orders').onclick = async (e) => {
+  const chat = e.target.closest('[data-chat]');
+  if (chat) { e.preventDefault(); openChat(chat.dataset.chat); showTab('chats'); return; }
+  const b = e.target.closest('button[data-s]');
+  if (!b) return;
+  if (b.dataset.s === 'cancelled' && !confirm(`Cancel order ${b.dataset.id}? The customer will be told.`)) return;
+  b.disabled = true;
+  await api(`/api/orders/${b.dataset.id}/status`, { method: 'POST', body: { status: b.dataset.s } });
+  refresh();
+};
+
+// ---- Chats ----
+let openPhone = null, threadSnap = '';
+function chatLabel(c) { return c.name || (c.phone.startsWith('sim-') ? 'Demo customer' : '+' + c.phone); }
+
+function renderChats() {
+  if (!data) return;
+  const need = data.chats.filter((c) => c.needsHuman).length;
+  $('bChats').hidden = !need; $('bChats').textContent = need;
+  $('chatList').innerHTML = data.chats.length ? data.chats.map((c) => `
+    <button class="chat-item ${c.phone === openPhone ? 'on' : ''}" data-p="${esc(c.phone)}">
+      <span class="av">${esc(chatLabel(c)[0].toUpperCase())}</span>
+      <span class="txt"><b>${esc(chatLabel(c))}</b><small>${c.last.from === 'customer' ? '' : (c.last.from === 'owner' ? 'You: ' : '🤖 ')}${esc(c.last.text.split('\n')[0])}</small></span>
+      ${c.needsHuman ? '<span class="flag">Needs you</span>' : ''}
+    </button>`).join('') : '<div class="empty" style="margin:12px">No conversations yet.</div>';
+}
+$('chatList').onclick = (e) => { const b = e.target.closest('[data-p]'); if (b) openChat(b.dataset.p); };
+$('backBtn').onclick = () => { openPhone = null; $('chatsBox').classList.remove('open'); renderChats(); };
+
+function openChat(phone) {
+  openPhone = phone; threadSnap = '';
+  $('chatsBox').classList.add('open');
+  const c = data?.chats.find((x) => x.phone === phone);
+  $('threadName').textContent = c ? chatLabel(c) : phone;
+  const real = !phone.startsWith('sim-');
+  $('threadWa').hidden = !real; if (real) $('threadWa').href = 'https://wa.me/' + phone;
+  renderChats(); loadThread();
+}
+
+async function loadThread() {
+  if (!openPhone) return;
+  const t = await api('/api/chats/' + encodeURIComponent(openPhone));
+  const snap = JSON.stringify(t);
+  if (snap === threadSnap) return;
+  threadSnap = snap;
+  $('handoff').hidden = !t.needsHuman;
+  const box = $('msgs');
+  const atBottom = box.scrollHeight - box.scrollTop - box.clientHeight < 60;
+  box.innerHTML = t.messages.map((m) => `<div class="bubble ${m.from}">${fmt(m.text)}<span class="who">${m.from === 'owner' ? 'You' : m.from === 'bot' ? '🤖 Bot' : ''} ${new Date(m.ts).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span></div>`).join('');
+  if (atBottom || !box.dataset.loaded) box.scrollTop = box.scrollHeight;
+  box.dataset.loaded = '1';
+}
+
+$('replyForm').onsubmit = async (e) => {
+  e.preventDefault();
+  const text = $('replyInput').value.trim();
+  if (!text || !openPhone) return;
+  $('replyInput').value = '';
+  await api(`/api/chats/${encodeURIComponent(openPhone)}/reply`, { method: 'POST', body: { text } });
+  $('msgs').dataset.loaded = ''; loadThread(); refresh();
+};
+$('releaseBtn').onclick = async () => {
+  await api(`/api/chats/${encodeURIComponent(openPhone)}/release`, { method: 'POST' });
+  loadThread(); refresh();
+};
+
+// ---- Menu ----
+function renderMenu() {
+  if (!data) return;
+  $('menuRows').innerHTML = data.menu.map((m, i) => `
+    <div class="menu-row ${m.available ? '' : 'sold'}">
+      <span class="name">${esc(m.name)}</span>
+      <label class="price"><span>₦</span><input type="number" min="1" value="${m.price}" data-price="${i}" aria-label="Price of ${esc(m.name)}"></label>
+      <button class="toggle ${m.available ? 'on' : ''}" data-toggle="${i}" aria-pressed="${m.available}"><i></i>${m.available ? 'Available' : 'Sold out'}</button>
+      <button class="btn small danger" data-del="${i}" aria-label="Remove ${esc(m.name)}">✕</button>
+    </div>`).join('');
+}
+$('menuRows').onclick = async (e) => {
+  const t = e.target.closest('[data-toggle]');
+  const d = e.target.closest('[data-del]');
+  if (t) {
+    const i = +t.dataset.toggle;
+    await api('/api/menu/' + i, { method: 'POST', body: { available: !data.menu[i].available } });
+    refresh();
+  } else if (d) {
+    const i = +d.dataset.del;
+    if (!confirm(`Remove "${data.menu[i].name}" from the menu?`)) return;
+    await api('/api/menu/' + i, { method: 'DELETE' });
+    refresh();
+  }
+};
+$('menuRows').addEventListener('change', async (e) => {
+  const i = e.target.dataset.price;
+  if (i === undefined) return;
+  const price = Number(e.target.value);
+  if (!(price > 0)) { e.target.value = data.menu[i].price; return; }
+  await api('/api/menu/' + i, { method: 'POST', body: { price } });
+  e.target.blur();
+  $('toast').textContent = `Price updated: ${naira(price)}`; $('toast').classList.add('show');
+  setTimeout(() => $('toast').classList.remove('show'), 2000);
+  refresh();
+});
+$('addForm').onsubmit = async (e) => {
+  e.preventDefault();
+  const f = e.target;
+  await api('/api/menu', { method: 'POST', body: { name: f.name.value, price: Number(f.price.value) } });
+  f.reset(); refresh();
+};
+
+// ---- Start ----
+let started = false;
+async function start() {
+  try { await api('/api/me'); } catch { return; }
+  $('app').hidden = false;
+  renderSoundBtn(); showTab(tab);
+  if (started) return;
+  started = true;
+  await refresh();
+  setInterval(refresh, 2500);
+  setInterval(() => { renderOrders(); }, 30000); // keep "x min ago" fresh
+}
+start();
+</script>
+</body>
+</html>

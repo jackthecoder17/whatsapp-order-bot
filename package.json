@@ -1,0 +1,17 @@
+{
+  "name": "whatsapp-order-bot",
+  "version": "1.0.0",
+  "description": "WhatsApp food-ordering bot with demo simulator and owner dashboard",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "record-demo": "node scripts/record-demo.js",
+    "live": "node --env-file=.env server.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "devDependencies": {
+    "playwright-core": "^1.63.0"
+  }
+}
